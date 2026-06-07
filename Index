@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ledger" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <title>Ledger — Finance Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { background: #0a0a0f; color: #e8e3d8; font-family: Georgia, serif; min-height: 100dvh; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0a0a0f; } ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 2px; }
+
+    /* Layout */
+    .app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+    .top-bar { border-bottom: 1px solid #1e1e2e; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 50; background: #0a0a0f; }
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: #0d0d16; border-top: 1px solid #1e1e2e; padding-bottom: env(safe-area-inset-bottom); }
+    .mobile-nav-inner { display: flex; }
+    .page-content { flex: 1; padding: 24px 20px; max-width: 1120px; margin: 0 auto; width: 100%; }
+
+    /* Tabs */
+    .tab-btn { background: none; border: none; border-bottom: 1px solid transparent; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 16px; color: #5a5a6a; transition: color .2s; }
+    .tab-btn.active { color: #d4a843; border-bottom-color: #d4a843; } .tab-btn:hover { color: #e8e3d8; }
+    .mob-tab { flex: 1; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px; color: #4a4a5a; transition: color .2s; -webkit-tap-highlight-color: transparent; }
+    .mob-tab.active { color: #d4a843; } .mob-tab-icon { font-size: 18px; line-height: 1; } .mob-tab-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+
+    /* Cards & Buttons */
+    .card { background: #13131c; border: 1px solid #1e1e2e; border-radius: 4px; }
+    .row-item { background: #13131c; border: 1px solid #1e1e2e; border-radius: 4px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; transition: background .15s; }
+    .row-item:hover { background: #16161f; }
+    .btn-primary { background: #d4a843; color: #0a0a0f; border: none; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 20px; cursor: pointer; font-weight: 500; transition: background .2s; touch-action: manipulation; }
+    .btn-primary:hover { background: #e8c060; }
+    .btn-fixed { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
+    .btn-fixed:hover { background: rgba(168,85,247,0.28); }
+    .btn-variable { background: rgba(6,182,212,0.12); color: #22d3ee; border: 1px solid rgba(6,182,212,0.25); border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
+    .btn-variable:hover { background: rgba(6,182,212,0.22); }
+    .btn-ghost { background: none; border: 1px solid #2a2a35; color: #8a8a9a; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
+    .btn-ghost:hover { border-color: #5a5a6a; color: #e8e3d8; }
+    .btn-danger { background: none; border: 1px solid rgba(239,68,68,0.25); color: #f87171; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .2s; }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+    .btn-mn { background: none; border: 1px solid #2a2a35; color: #8a8a9a; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: all .15s; }
+    .btn-mn:hover:not(:disabled) { border-color: #5a5a6a; color: #e8e3d8; } .btn-mn:disabled { opacity: 0.25; cursor: default; }
+    .del-btn { background: none; border: none; color: #3a3a4a; cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
+    .del-btn:hover { color: #ef4444; }
+    .edit-btn { background: none; border: none; color: #3a3a4a; cursor: pointer; font-size: 14px; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
+    .edit-btn:hover { color: #d4a843; }
+
+    /* Inputs */
+    .input-field { background: #0d0d16; border: 1px solid #2a2a35; border-radius: 4px; color: #e8e3d8; font-family: 'DM Mono', monospace; font-size: 14px; padding: 12px 14px; width: 100%; outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none; }
+    .input-field:focus { border-color: #d4a843; } .input-field::placeholder { color: #3a3a4a; }
+    select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5a6a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    select.input-field option { background: #0d0d16; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.82); display: flex; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(6px); }
+    .modal-box { background: #13131c; border: 1px solid #2a2a35; border-radius: 12px 12px 0 0; padding: 28px 24px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; padding-bottom: calc(28px + env(safe-area-inset-bottom)); animation: slideUp .22s ease; }
+    .modal-drag { width: 40px; height: 4px; background: #2a2a35; border-radius: 2px; margin: 0 auto 20px; }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 40px; height: 22px; cursor: pointer; flex-shrink: 0; display: inline-block; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track { position: absolute; inset: 0; background: #1e1e2e; border-radius: 11px; transition: background .2s; }
+    .toggle input:checked + .toggle-track { background: #a855f7; }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: #4a4a5a; border-radius: 50%; transition: all .2s; pointer-events: none; }
+    .toggle input:checked ~ .toggle-thumb { left: 21px; background: #fff; }
+
+    /* Misc helpers */
+    .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #84cc16; display: inline-block; margin-right: 6px; box-shadow: 0 0 6px #84cc16; }
+    .label-sm { font-family: 'DM Mono', monospace; font-size: 9px; color: #4a4a5a; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .mono { font-family: 'DM Mono', monospace; }
+    .serif { font-family: 'Playfair Display', serif; }
+    .badge-fixed { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: rgba(168,85,247,0.12); color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
+    .badge-variable { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.25); }
+    .badge-auto { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: rgba(212,168,67,0.12); color: #d4a843; border: 1px solid rgba(212,168,67,0.25); }
+    .info-box { background: rgba(212,168,67,0.06); border: 1px solid rgba(212,168,67,0.18); border-radius: 4px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; }
+    .progress-track { height: 5px; background: #1e1e2e; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+    .divider { height: 1px; background: #1e1e2e; margin: 12px 0; }
+    .empty-state { padding: 28px; text-align: center; border: 1px dashed #2a2a35; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; color: #3a3a4a; }
+    .auto-row { border-left: 2px solid #a855f7 !important; }
+    .paused { opacity: 0.45; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 999; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .08em; padding: 10px 20px; border-radius: 20px; white-space: nowrap; pointer-events: none; animation: fadeToast .2s ease; }
+    .toast-success { background: rgba(132,204,22,0.15); color: #84cc16; border: 1px solid rgba(132,204,22,0.3); }
+    .toast-warn { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+    /* Grids */
+    .kpi-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 24px; }
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .expense-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .savings-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .pay-detail { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; }
+
+    /* Animations */
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes fadeToast { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes rowIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .fi { animation: rowIn .22s ease both; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .top-bar { padding: 0 16px; }
+      .desktop-nav { display: none; }
+      .mobile-nav { display: block; }
+      .page-content { padding: 16px 16px 82px; }
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+      .kpi-last { grid-column: 1/-1; }
+      .dash-grid, .expense-grid, .savings-grid { grid-template-columns: 1fr; }
+      .pay-detail { grid-template-columns: 1fr; gap: 2px; }
+      .hide-mobile { display: none !important; }
+      .toast { bottom: 90px; }
+    }
+    @media (min-width: 769px) {
+      .modal-overlay { align-items: center; padding: 20px; }
+      .modal-box { border-radius: 6px; }
+      .modal-drag { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useMemo, useEffect, useCallback } = React;
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const FIXED_CATS = ['Rent / Mortgage','Car Insurance','Health Insurance','Loan Payment','Subscription','Internet / Phone','Other Fixed'];
+const VAR_CATS   = ['Groceries','Fuel','Dining Out','Entertainment','Clothing','Personal Care','Medical','Home Supplies','Travel','Other Variable'];
+const CAT_COLORS = {
+  'Rent / Mortgage':'#f97316','Car Insurance':'#fb923c','Health Insurance':'#ec4899',
+  'Loan Payment':'#a855f7','Subscription':'#8b5cf6','Internet / Phone':'#6366f1','Other Fixed':'#64748b',
+  'Groceries':'#84cc16','Fuel':'#06b6d4','Dining Out':'#f59e0b','Entertainment':'#10b981',
+  'Clothing':'#14b8a6','Personal Care':'#f472b6','Medical':'#ef4444',
+  'Home Supplies':'#22d3ee','Travel':'#a3e635','Other Variable':'#6b7280',
+};
+const NAV = [
+  {id:'dashboard', icon:'◈', label:'Dashboard'},
+  {id:'expenses',  icon:'⊟', label:'Expenses'},
+  {id:'paystubs',  icon:'⊞', label:'Paystubs'},
+  {id:'savings',   icon:'◎', label:'Savings'},
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const fmt  = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
+const fmtD = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const tod  = () => new Date().toISOString().slice(0,10);
+const ym   = d  => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+
+// ── localStorage hook ─────────────────────────────────────────────────────────
+function useLS(key, init) {
+  const [state, setState] = useState(() => {
+    try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : init; }
+    catch { return init; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(state)); } catch {}
+  }, [key, state]);
+  return [state, setState];
+}
+
+// ── Auto-post engine ──────────────────────────────────────────────────────────
+function buildAutoHistory(fixed) {
+  const now = new Date();
+  const entries = [];
+  for (const f of fixed) {
+    if (!f.active) continue;
+    const start  = new Date(f.createdAt || now);
+    const startM = new Date(start.getFullYear(), start.getMonth(), 1);
+    const endM   = new Date(now.getFullYear(),   now.getMonth(),   1);
+    let cur = new Date(startM);
+    while (cur <= endM) {
+      const maxDay = new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate();
+      const day    = Math.min(f.billingDay, maxDay);
+      const date   = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      entries.push({ id:`auto_${f.id}_${ym(cur)}`, fixedId:f.id, month:ym(cur), date, name:f.name, category:f.category, amount:f.amount });
+      cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+    }
+  }
+  return entries.sort((a,b) => b.date.localeCompare(a.date));
+}
+
+// ── Seed ──────────────────────────────────────────────────────────────────────
+const SEED_FIXED = [
+  {id:1, name:'Rent',          category:'Rent / Mortgage', amount:0, billingDay:1,  active:true, createdAt:tod()},
+  {id:2, name:'Car Insurance', category:'Car Insurance',   amount:0, billingDay:15, active:true, createdAt:tod()},
+];
+
+// ── Small components ──────────────────────────────────────────────────────────
+const Dot = ({cat}) => <span style={{display:'inline-block',width:8,height:8,borderRadius:'50%',background:CAT_COLORS[cat]||'#6b7280',flexShrink:0}} />;
+const Bar = ({value, max, color}) => (
+  <div className="progress-track">
+    <div className="progress-fill" style={{width:`${max?(value/max)*100:0}%`,background:color}} />
+  </div>
+);
+const MonthNav = ({month, onChange}) => {
+  const isNow = month === ym(new Date());
+  const label = () => { const [y,m] = month.split('-').map(Number); return new Date(y,m-1,1).toLocaleString('en-US',{month:'long',year:'numeric'}); };
+  const shift  = d  => { const [y,m] = month.split('-').map(Number); onChange(ym(new Date(y,m-1+d,1))); };
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:8}}>
+      <button className="btn-mn" onClick={()=>shift(-1)}>‹</button>
+      <span className="mono" style={{fontSize:11,color:'#e8e3d8',minWidth:130,textAlign:'center'}}>{label()}</span>
+      <button className="btn-mn" onClick={()=>shift(1)} disabled={isNow}>›</button>
+    </div>
+  );
+};
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function App() {
+  const [tab,       setTab]      = useState('dashboard');
+  const [paystubs,  setPaystubs] = useLS('ledger_paystubs', []);
+  const [fixed,     setFixed]    = useLS('ledger_fixed',    SEED_FIXED);
+  const [variable,  setVariable] = useLS('ledger_variable', []);
+  const [goal,      setGoal]     = useLS('ledger_goal',     10000);
+  const [saved,     setSaved]    = useLS('ledger_savings',  0);
+  const [modal,     setModal]    = useState(null);
+  const [editTgt,   setEditTgt]  = useState(null);
+  const [toast,     setToast]    = useState(null);
+  const [month,     setMonth]    = useState(ym(new Date()));
+  const [deposit,   setDeposit]  = useState('');
+  const [goalInp,   setGoalInp]  = useState('');
+
+  const blankF = {name:'',category:'Rent / Mortgage',amount:'',billingDay:1,active:true};
+  const blankV = {name:'',category:'Groceries',amount:'',date:tod()};
+  const blankP = {employer:'',date:tod(),gross:'',tax:'',deductions:''};
+  const [ff, setFF] = useState(blankF);
+  const [vf, setVF] = useState(blankV);
+  const [pf, setPF] = useState(blankP);
+
+  const auto      = useMemo(() => buildAutoHistory(fixed), [fixed]);
+  const autoMonth = useMemo(() => auto.filter(e => e.month === month), [auto, month]);
+  const varMonth  = useMemo(() => variable.filter(e => e.date.startsWith(month)), [variable, month]);
+  const payMonth  = useMemo(() => paystubs.filter(p => p.date.startsWith(month)), [paystubs, month]);
+
+  const totalInc  = useMemo(() => payMonth.reduce((s,p)=>s+p.net,0), [payMonth]);
+  const totalFix  = useMemo(() => autoMonth.reduce((s,e)=>s+e.amount,0), [autoMonth]);
+  const totalVar  = useMemo(() => varMonth.reduce((s,e)=>s+e.amount,0),  [varMonth]);
+  const totalOut  = totalFix + totalVar;
+  const net       = totalInc - totalOut;
+  const savePct   = Math.min((saved/(goal||1))*100, 100);
+
+  const allInc    = useMemo(() => paystubs.reduce((s,p)=>s+p.net,0),       [paystubs]);
+  const allFix    = useMemo(() => auto.reduce((s,e)=>s+e.amount,0),         [auto]);
+  const allVar    = useMemo(() => variable.reduce((s,e)=>s+e.amount,0),     [variable]);
+
+  const fixCats   = useMemo(() => { const t={}; autoMonth.forEach(e=>{t[e.category]=(t[e.category]||0)+e.amount}); return Object.entries(t).sort((a,b)=>b[1]-a[1]); }, [autoMonth]);
+  const varCats   = useMemo(() => { const t={}; varMonth.forEach(e=>{t[e.category]=(t[e.category]||0)+e.amount});  return Object.entries(t).sort((a,b)=>b[1]-a[1]); }, [varMonth]);
+
+  const toast$ = (msg, type='success') => { setToast({msg,type}); setTimeout(()=>setToast(null),3000); };
+  const closeModal = () => { setModal(null); setEditTgt(null); };
+
+  // Mutations
+  const addFixed = () => {
+    if (!ff.name||!ff.amount) return;
+    setFixed(p=>[{...ff,id:Date.now(),amount:parseFloat(ff.amount),billingDay:parseInt(ff.billingDay),createdAt:tod()},...p]);
+    setFF(blankF); setModal(null); toast$(`${ff.name} added — auto-posts monthly`);
+  };
+  const saveFixed = () => {
+    setFixed(p=>p.map(f=>f.id===editTgt.id?{...editTgt,amount:parseFloat(editTgt.amount),billingDay:parseInt(editTgt.billingDay)}:f));
+    closeModal(); toast$('Updated');
+  };
+  const toggleFixed = id => {
+    const f = fixed.find(x=>x.id===id);
+    setFixed(p=>p.map(x=>x.id===id?{...x,active:!x.active}:x));
+    toast$(f?(f.active?`${f.name} paused`:`${f.name} resumed`):'Updated', f?.active?'warn':'success');
+  };
+  const delFixed   = id => { setFixed(p=>p.filter(f=>f.id!==id)); toast$('Removed','warn'); };
+  const addVar     = () => {
+    if (!vf.name||!vf.amount) return;
+    setVariable(p=>[{...vf,id:Date.now(),amount:parseFloat(vf.amount)},...p]);
+    setVF(blankV); setModal(null); toast$('Expense logged');
+  };
+  const delVar     = id => { setVariable(p=>p.filter(e=>e.id!==id)); toast$('Removed','warn'); };
+  const addPay     = () => {
+    if (!pf.employer||!pf.gross) return;
+    const gross=parseFloat(pf.gross), tax=parseFloat(pf.tax)||0, ded=parseFloat(pf.deductions)||0;
+    setPaystubs(p=>[{...pf,id:Date.now(),gross,tax,deductions:ded,net:gross-tax-ded},...p]);
+    setPF(blankP); setModal(null); toast$('Paystub added');
+  };
+  const delPay     = id => { setPaystubs(p=>p.filter(x=>x.id!==id)); toast$('Removed','warn'); };
+
+  const activeFix = fixed.filter(f=>f.active);
+  const activeMo  = activeFix.reduce((s,f)=>s+f.amount,0);
+
+  const netPreview = pf.gross ? parseFloat(pf.gross||0)-parseFloat(pf.tax||0)-parseFloat(pf.deductions||0) : null;
+
+  return (
+    <div className="app-shell">
+
+      {/* Header */}
+      <header className="top-bar">
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span className="serif" style={{fontSize:20,fontWeight:900,color:'#d4a843'}}>LEDGER</span>
+          <span className="hide-mobile mono" style={{fontSize:8,color:'#2a2a35',letterSpacing:'0.22em',textTransform:'uppercase'}}>Personal Finance</span>
+          <span className="sync-dot" />
+        </div>
+        <nav className="desktop-nav">
+          {NAV.map(n=>(
+            <button key={n.id} className={`tab-btn ${tab===n.id?'active':''}`} onClick={()=>setTab(n.id)}>{n.label}</button>
+          ))}
+        </nav>
+      </header>
+
+      <main className="page-content">
+
+        {/* ══ DASHBOARD ══ */}
+        {tab==='dashboard' && (
+          <div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20,flexWrap:'wrap',gap:12}}>
+              <div>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Overview</h1>
+                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>Monthly snapshot</p>
+              </div>
+              <MonthNav month={month} onChange={setMonth} />
+            </div>
+
+            <div className="kpi-grid">
+              {[
+                {label:'Net Income',  value:fmt(totalInc),  color:'#84cc16', sub:`${payMonth.length} paystubs`},
+                {label:'Fixed',       value:fmt(totalFix),  color:'#a855f7', sub:`${autoMonth.length} auto-posted`},
+                {label:'Variable',    value:fmt(totalVar),  color:'#06b6d4', sub:`${varMonth.length} items`},
+                {label:'Total Out',   value:fmt(totalOut),  color:'#ef4444', sub:'fixed + variable'},
+                {label:'Net',         value:fmt(net),       color:net>=0?'#d4a843':'#ef4444', sub:net>=0?'surplus':'deficit', last:true},
+              ].map(m=>(
+                <div key={m.label} className={`card ${m.last?'kpi-last':''}`} style={{padding:'16px 14px'}}>
+                  <span className="label-sm">{m.label}</span>
+                  <p className="serif" style={{fontSize:20,fontWeight:700,color:m.color,marginBottom:2}}>{m.value}</p>
+                  <p className="mono" style={{fontSize:9,color:'#3a3a4a'}}>{m.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="dash-grid">
+              {/* Fixed breakdown */}
+              <div className="card" style={{padding:20}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                  <span className="label-sm" style={{marginBottom:0}}>Fixed This Month</span>
+                  <div style={{display:'flex',gap:6}}><span className="badge-fixed">fixed</span><span className="badge-auto">auto</span></div>
+                </div>
+                {fixCats.length===0
+                  ? <p className="mono" style={{fontSize:10,color:'#3a3a4a'}}>No active fixed expenses</p>
+                  : fixCats.map(([cat,amt])=>(
+                    <div key={cat} style={{marginBottom:14}}>
+                      <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                        <span className="mono" style={{fontSize:10,color:'#8a8a9a',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
+                        <span className="mono" style={{fontSize:10,color:'#e8e3d8'}}>{fmt(amt)}</span>
+                      </div>
+                      <Bar value={amt} max={totalFix} color={CAT_COLORS[cat]} />
+                    </div>
+                  ))}
+                <div className="divider" />
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>Monthly total</span>
+                  <span className="mono" style={{fontSize:12,color:'#a855f7'}}>{fmt(totalFix)}</span>
+                </div>
+              </div>
+
+              {/* Variable breakdown */}
+              <div className="card" style={{padding:20}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                  <span className="label-sm" style={{marginBottom:0}}>Variable This Month</span>
+                  <span className="badge-variable">variable</span>
+                </div>
+                {varCats.length===0
+                  ? <p className="mono" style={{fontSize:10,color:'#3a3a4a'}}>No variable expenses</p>
+                  : varCats.map(([cat,amt])=>(
+                    <div key={cat} style={{marginBottom:14}}>
+                      <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                        <span className="mono" style={{fontSize:10,color:'#8a8a9a',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
+                        <span className="mono" style={{fontSize:10,color:'#e8e3d8'}}>{fmt(amt)}</span>
+                      </div>
+                      <Bar value={amt} max={totalVar} color={CAT_COLORS[cat]} />
+                    </div>
+                  ))}
+                <div className="divider" />
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>Period total</span>
+                  <span className="mono" style={{fontSize:12,color:'#06b6d4'}}>{fmt(totalVar)}</span>
+                </div>
+              </div>
+
+              {/* Savings ring */}
+              <div className="card" style={{padding:20,display:'flex',flexDirection:'column',alignItems:'center'}}>
+                <span className="label-sm" style={{alignSelf:'flex-start',marginBottom:14}}>Savings Goal</span>
+                <div style={{position:'relative',width:110,height:110,marginBottom:14}}>
+                  <svg width="110" height="110" style={{transform:'rotate(-90deg)'}}>
+                    <circle cx="55" cy="55" r="44" fill="none" stroke="#1e1e2e" strokeWidth="8"/>
+                    <circle cx="55" cy="55" r="44" fill="none" stroke="#d4a843" strokeWidth="8"
+                      strokeDasharray={`${2*Math.PI*44}`}
+                      strokeDashoffset={`${2*Math.PI*44*(1-savePct/100)}`}
+                      strokeLinecap="round" style={{transition:'stroke-dashoffset .8s ease'}}/>
+                  </svg>
+                  <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                    <span className="serif" style={{fontSize:22,fontWeight:700,color:'#d4a843',lineHeight:1}}>{savePct.toFixed(0)}%</span>
+                    <span className="mono" style={{fontSize:7,color:'#4a4a5a',marginTop:2}}>OF GOAL</span>
+                  </div>
+                </div>
+                {[['Saved',fmt(saved),'#84cc16'],['Goal',fmt(goal),'#e8e3d8'],['Left',fmt(Math.max(goal-saved,0)),'#d4a843']].map(([l,v,c])=>(
+                  <div key={l} style={{width:'100%',display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                    <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{l}</span>
+                    <span className="mono" style={{fontSize:10,color:c}}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ EXPENSES ══ */}
+        {tab==='expenses' && (
+          <div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,gap:12,flexWrap:'wrap'}}>
+              <div>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Expenses</h1>
+                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>Manage fixed schedules · log variable purchases</p>
+              </div>
+              <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+                <button className="btn-fixed"    onClick={()=>{setFF(blankF);setModal('addFixed')}}>+ Fixed</button>
+                <button className="btn-variable" onClick={()=>{setVF(blankV);setModal('addVar')}}>+ Variable</button>
+              </div>
+            </div>
+
+            <div className="info-box" style={{marginBottom:20}}>
+              <span style={{fontSize:15,flexShrink:0}}>✦</span>
+              <p className="mono" style={{fontSize:10,color:'#a08030',lineHeight:'1.7'}}>
+                Fixed expenses auto-post every month on their billing day — set up once, appears automatically. Use the month picker below to review any past month.
+              </p>
+            </div>
+
+            <div className="expense-grid">
+              {/* Fixed schedules */}
+              <div>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+                  <span className="badge-fixed">fixed</span>
+                  <span className="badge-auto">auto</span>
+                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{fmt(activeMo)}/mo</span>
+                </div>
+                {fixed.length===0 && <div className="empty-state">Tap + Fixed to add a recurring bill</div>}
+                <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                  {fixed.map((f,i)=>(
+                    <div key={f.id} className={`row-item fi ${!f.active?'paused':''}`} style={{animationDelay:`${i*.04}s`}}>
+                      <Dot cat={f.category}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:2}}>
+                          <p className="serif" style={{fontSize:14,color:f.active?'#e8e3d8':'#6a6a7a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</p>
+                          {f.active && <span className="badge-auto">auto</span>}
+                        </div>
+                        <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>Day {f.billingDay} · {f.category}</p>
+                      </div>
+                      <span className="mono" style={{fontSize:13,color:'#a855f7',flexShrink:0}}>{fmt(f.amount)}/mo</span>
+                      <label className="toggle" title="Pause/Resume">
+                        <input type="checkbox" checked={f.active} onChange={()=>toggleFixed(f.id)}/>
+                        <div className="toggle-track"/><div className="toggle-thumb"/>
+                      </label>
+                      <button className="edit-btn" onClick={()=>{setEditTgt({...f});setModal('editFixed')}}>✎</button>
+                      <button className="del-btn"  onClick={()=>delFixed(f.id)}>×</button>
+                    </div>
+                  ))}
+                </div>
+                <p className="mono" style={{fontSize:9,color:'#3a3a4a',marginTop:8}}>Toggle to pause · ✎ to edit · auto-posts each month</p>
+              </div>
+
+              {/* Variable log */}
+              <div>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+                  <span className="badge-variable">variable</span>
+                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{variable.length} total · {fmt(allVar)}</span>
+                </div>
+                {variable.length===0 && <div className="empty-state">Tap + Variable to log a purchase</div>}
+                <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                  {variable.map((e,i)=>(
+                    <div key={e.id} className="row-item fi" style={{animationDelay:`${i*.04}s`}}>
+                      <Dot cat={e.category}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p className="serif" style={{fontSize:14,color:'#e8e3d8',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{e.name}</p>
+                        <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>{e.category} · {fmtD(e.date)}</p>
+                      </div>
+                      <span className="mono" style={{fontSize:13,color:'#06b6d4',flexShrink:0}}>−{fmt(e.amount)}</span>
+                      <button className="del-btn" onClick={()=>delVar(e.id)}>×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Auto-history */}
+            {auto.length>0 && (
+              <div style={{marginTop:28}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+                  <p className="mono" style={{fontSize:10,color:'#5a5a6a',letterSpacing:'0.12em',textTransform:'uppercase'}}>
+                    Auto-posted Fixed — {(()=>{const [y,m]=month.split('-').map(Number);return new Date(y,m-1,1).toLocaleString('en-US',{month:'long',year:'numeric'})})()}
+                  </p>
+                  <MonthNav month={month} onChange={setMonth}/>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                  {autoMonth.length===0
+                    ? <p className="mono" style={{fontSize:10,color:'#3a3a4a',padding:16}}>No fixed expenses active this month</p>
+                    : autoMonth.map((e,i)=>(
+                      <div key={e.id} className="row-item auto-row fi" style={{animationDelay:`${i*.03}s`}}>
+                        <Dot cat={e.category}/>
+                        <div style={{flex:1,minWidth:0}}>
+                          <p className="serif" style={{fontSize:13,color:'#e8e3d8',marginBottom:2}}>{e.name}</p>
+                          <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>{e.category} · {fmtD(e.date)}</p>
+                        </div>
+                        <span className="badge-auto">auto</span>
+                        <span className="mono" style={{fontSize:13,color:'#a855f7',marginLeft:8}}>−{fmt(e.amount)}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ PAYSTUBS ══ */}
+        {tab==='paystubs' && (
+          <div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24,gap:12}}>
+              <div>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Paystubs</h1>
+                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>{paystubs.length} records · {fmt(allInc)} net total</p>
+              </div>
+              <button className="btn-primary" onClick={()=>{setPF(blankP);setModal('addPay')}}>+ Add</button>
+            </div>
+            {paystubs.length===0 && <div className="empty-state" style={{padding:48}}>No paystubs yet. Tap + Add.</div>}
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {paystubs.map((p,i)=>(
+                <div key={p.id} className="card fi" style={{padding:20,animationDelay:`${i*.06}s`}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+                    <div>
+                      <p className="serif" style={{fontSize:17,color:'#e8e3d8',marginBottom:3}}>{p.employer}</p>
+                      <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>{fmtD(p.date)}</p>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <div style={{textAlign:'right'}}>
+                        <span className="label-sm">Net Pay</span>
+                        <p className="serif" style={{fontSize:22,fontWeight:700,color:'#84cc16'}}>{fmt(p.net)}</p>
+                      </div>
+                      <button className="del-btn" onClick={()=>delPay(p.id)}>×</button>
+                    </div>
+                  </div>
+                  <div className="pay-detail">
+                    {[['Gross Pay',p.gross,'#e8e3d8'],['Tax Withheld',p.tax,'#ef4444'],['Deductions',p.deductions,'#f59e0b']].map(([lbl,val,clr])=>(
+                      <div key={lbl} style={{background:'#0d0d16',padding:'10px 14px',borderRadius:2}}>
+                        <span className="label-sm">{lbl}</span>
+                        <p className="mono" style={{fontSize:13,color:clr}}>{fmt(val)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══ SAVINGS ══ */}
+        {tab==='savings' && (
+          <div>
+            <div style={{marginBottom:24}}>
+              <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Savings</h1>
+              <p className="mono" style={{fontSize:10,color:'#4a4a5a',letterSpacing:'0.14em'}}>TRACK YOUR GOAL</p>
+            </div>
+            <div className="savings-grid">
+              <div className="card" style={{padding:36,display:'flex',flexDirection:'column',alignItems:'center'}}>
+                <div style={{position:'relative',width:170,height:170,marginBottom:24}}>
+                  <svg width="170" height="170" style={{transform:'rotate(-90deg)'}}>
+                    <circle cx="85" cy="85" r="68" fill="none" stroke="#1e1e2e" strokeWidth="11"/>
+                    <circle cx="85" cy="85" r="68" fill="none" stroke="#d4a843" strokeWidth="11"
+                      strokeDasharray={`${2*Math.PI*68}`}
+                      strokeDashoffset={`${2*Math.PI*68*(1-savePct/100)}`}
+                      strokeLinecap="round" style={{transition:'stroke-dashoffset .8s ease'}}/>
+                  </svg>
+                  <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                    <span className="serif" style={{fontSize:36,fontWeight:900,color:'#d4a843',lineHeight:1}}>{savePct.toFixed(0)}%</span>
+                    <span className="mono" style={{fontSize:8,color:'#4a4a5a',marginTop:4}}>OF GOAL</span>
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:40}}>
+                  {[['Saved',fmt(saved),'#84cc16'],['Remaining',fmt(Math.max(goal-saved,0)),'#e8e3d8']].map(([l,v,c])=>(
+                    <div key={l} style={{textAlign:'center'}}>
+                      <span className="label-sm">{l}</span>
+                      <p className="serif" style={{fontSize:22,color:c,fontWeight:700}}>{v}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                <div className="card" style={{padding:20}}>
+                  <span className="label-sm">Deposit</span>
+                  <input className="input-field" type="number" inputMode="decimal" placeholder="Amount ($)" value={deposit} onChange={e=>setDeposit(e.target.value)} style={{marginBottom:10}}/>
+                  <button className="btn-primary" style={{width:'100%'}} onClick={()=>{if(deposit){setSaved(s=>s+parseFloat(deposit));setDeposit('');toast$('Savings updated')}}}>Add to Savings</button>
+                </div>
+                <div className="card" style={{padding:20}}>
+                  <span className="label-sm">Update Goal</span>
+                  <input className="input-field" type="number" inputMode="decimal" placeholder="New goal ($)" value={goalInp} onChange={e=>setGoalInp(e.target.value)} style={{marginBottom:10}}/>
+                  <button className="btn-ghost" style={{width:'100%'}} onClick={()=>{if(goalInp){setGoal(parseFloat(goalInp));setGoalInp('');toast$('Goal updated')}}}>Set Goal</button>
+                </div>
+                <div className="card" style={{padding:20}}>
+                  <span className="label-sm">All-Time Cash Flow</span>
+                  {[['Total Income',fmt(allInc),'#84cc16'],['Total Fixed',`−${fmt(allFix)}`,'#a855f7'],['Total Variable',`−${fmt(allVar)}`,'#06b6d4']].map(([l,v,c])=>(
+                    <div key={l} style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                      <span className="mono" style={{fontSize:10,color:'#6a6a7a'}}>{l}</span>
+                      <span className="mono" style={{fontSize:10,color:c}}>{v}</span>
+                    </div>
+                  ))}
+                  <div className="divider"/>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <span className="mono" style={{fontSize:10,color:'#8a8a9a'}}>Net</span>
+                    <span className="mono" style={{fontSize:13,color:(allInc-allFix-allVar)>=0?'#d4a843':'#ef4444',fontWeight:500}}>{fmt(allInc-allFix-allVar)}</span>
+                  </div>
+                </div>
+                <div className="card" style={{padding:20}}>
+                  <span className="label-sm">Reset Data</span>
+                  <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:12,lineHeight:'1.6'}}>Clears everything from this browser. Cannot be undone.</p>
+                  <button className="btn-danger" style={{width:'100%'}} onClick={()=>{if(window.confirm('Delete ALL data? This cannot be undone.')){['ledger_paystubs','ledger_fixed','ledger_variable','ledger_goal','ledger_savings'].forEach(k=>localStorage.removeItem(k));window.location.reload()}}}>Clear All Data</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Mobile nav */}
+      <nav className="mobile-nav">
+        <div className="mobile-nav-inner">
+          {NAV.map(n=>(
+            <button key={n.id} className={`mob-tab ${tab===n.id?'active':''}`} onClick={()=>setTab(n.id)}>
+              <span className="mob-tab-icon">{n.icon}</span>
+              <span className="mob-tab-label">{n.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Toast */}
+      {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
+
+      {/* ══ MODALS ══ */}
+
+      {/* Add Fixed */}
+      {modal==='addFixed' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Add Fixed Expense</h2>
+              <span className="badge-fixed">fixed</span>
+            </div>
+            <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:18}}>Will auto-post every month from today</p>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <input className="input-field" placeholder="Name (e.g. Rent, Car Insurance)" value={ff.name} onChange={e=>setFF(f=>({...f,name:e.target.value}))}/>
+              <select className="input-field" value={ff.category} onChange={e=>setFF(f=>({...f,category:e.target.value}))}>
+                {FIXED_CATS.map(c=><option key={c}>{c}</option>)}
+              </select>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Monthly amount ($)" value={ff.amount} onChange={e=>setFF(f=>({...f,amount:e.target.value}))}/>
+              <div>
+                <span className="label-sm">Billing day of month</span>
+                <input className="input-field" type="number" inputMode="numeric" min="1" max="31" placeholder="e.g. 1 for 1st, 15 for 15th" value={ff.billingDay} onChange={e=>setFF(f=>({...f,billingDay:e.target.value}))}/>
+              </div>
+              <div className="info-box">
+                <span style={{fontSize:14}}>✦</span>
+                <p className="mono" style={{fontSize:9,color:'#a08030',lineHeight:'1.7'}}>This will automatically appear in every month's expense view — no re-entry needed.</p>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:20}}>
+              <button className="btn-fixed" style={{flex:1}} onClick={addFixed}>Add Fixed</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Fixed */}
+      {modal==='editFixed' && editTgt && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Edit Fixed Expense</h2>
+              <span className="badge-fixed">fixed</span>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <input className="input-field" placeholder="Name" value={editTgt.name} onChange={e=>setEditTgt(t=>({...t,name:e.target.value}))}/>
+              <select className="input-field" value={editTgt.category} onChange={e=>setEditTgt(t=>({...t,category:e.target.value}))}>
+                {FIXED_CATS.map(c=><option key={c}>{c}</option>)}
+              </select>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Monthly amount ($)" value={editTgt.amount} onChange={e=>setEditTgt(t=>({...t,amount:e.target.value}))}/>
+              <input className="input-field" type="number" inputMode="numeric" min="1" max="31" placeholder="Billing day (1–31)" value={editTgt.billingDay} onChange={e=>setEditTgt(t=>({...t,billingDay:e.target.value}))}/>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:20}}>
+              <button className="btn-fixed" style={{flex:1}} onClick={saveFixed}>Save Changes</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Variable */}
+      {modal==='addVar' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Log Variable Expense</h2>
+              <span className="badge-variable">variable</span>
+            </div>
+            <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:18}}>ONE-TIME — groceries, fuel, dining, shopping</p>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <input className="input-field" placeholder="Description (e.g. Groceries)" value={vf.name} onChange={e=>setVF(f=>({...f,name:e.target.value}))}/>
+              <select className="input-field" value={vf.category} onChange={e=>setVF(f=>({...f,category:e.target.value}))}>
+                {VAR_CATS.map(c=><option key={c}>{c}</option>)}
+              </select>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Amount ($)" value={vf.amount} onChange={e=>setVF(f=>({...f,amount:e.target.value}))}/>
+              <input className="input-field" type="date" value={vf.date} onChange={e=>setVF(f=>({...f,date:e.target.value}))}/>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:20}}>
+              <button className="btn-variable" style={{flex:1}} onClick={addVar}>Log Expense</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Paystub */}
+      {modal==='addPay' && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <h2 className="serif" style={{fontSize:20,color:'#e8e3d8',marginBottom:20}}>Add Paystub</h2>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <input className="input-field" placeholder="Employer name" value={pf.employer} onChange={e=>setPF(f=>({...f,employer:e.target.value}))}/>
+              <input className="input-field" type="date" value={pf.date} onChange={e=>setPF(f=>({...f,date:e.target.value}))}/>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Gross pay ($)" value={pf.gross} onChange={e=>setPF(f=>({...f,gross:e.target.value}))}/>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Tax withheld ($)" value={pf.tax} onChange={e=>setPF(f=>({...f,tax:e.target.value}))}/>
+              <input className="input-field" type="number" inputMode="decimal" placeholder="Other deductions ($)" value={pf.deductions} onChange={e=>setPF(f=>({...f,deductions:e.target.value}))}/>
+              {pf.gross && (
+                <div style={{background:'#0d0d16',padding:14,border:'1px solid #1e1e2e',borderRadius:4}}>
+                  <span className="label-sm">Net Pay Preview</span>
+                  <p className="serif" style={{fontSize:22,color:'#84cc16'}}>{fmt(parseFloat(pf.gross||0)-parseFloat(pf.tax||0)-parseFloat(pf.deductions||0))}</p>
+                </div>
+              )}
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:20}}>
+              <button className="btn-primary" style={{flex:1}} onClick={addPay}>Add Paystub</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
