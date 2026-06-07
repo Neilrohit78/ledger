@@ -7,83 +7,83 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ledger" />
-  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="theme-color" content="#f4f6f9" />
   <title>Ledger — Finance Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; }
-    body { background: #0a0a0f; color: #e8e3d8; font-family: Georgia, serif; min-height: 100dvh; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0a0a0f; } ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 2px; }
+    body { background: #f4f6f9; color: #1a1a2e; font-family: Georgia, serif; min-height: 100dvh; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #f4f6f9; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
     /* Layout */
     .app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
-    .top-bar { border-bottom: 1px solid #1e1e2e; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 50; background: #0a0a0f; }
+    .top-bar { border-bottom: 1px solid #e2e8f0; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 50; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     .desktop-nav { display: flex; }
-    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: #0d0d16; border-top: 1px solid #1e1e2e; padding-bottom: env(safe-area-inset-bottom); }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: #ffffff; border-top: 1px solid #e2e8f0; padding-bottom: env(safe-area-inset-bottom); }
     .mobile-nav-inner { display: flex; }
     .page-content { flex: 1; padding: 24px 20px; max-width: 1120px; margin: 0 auto; width: 100%; }
 
     /* Tabs */
-    .tab-btn { background: none; border: none; border-bottom: 1px solid transparent; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 16px; color: #5a5a6a; transition: color .2s; }
-    .tab-btn.active { color: #d4a843; border-bottom-color: #d4a843; } .tab-btn:hover { color: #e8e3d8; }
-    .mob-tab { flex: 1; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px; color: #4a4a5a; transition: color .2s; -webkit-tap-highlight-color: transparent; }
+    .tab-btn { background: none; border: none; border-bottom: 1px solid transparent; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 16px; color: #94a3b8; transition: color .2s; }
+    .tab-btn.active { color: #d4a843; border-bottom-color: #d4a843; } .tab-btn:hover { color: #1a1a2e; }
+    .mob-tab { flex: 1; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px; color: #64748b; transition: color .2s; -webkit-tap-highlight-color: transparent; }
     .mob-tab.active { color: #d4a843; } .mob-tab-icon { font-size: 18px; line-height: 1; } .mob-tab-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 
     /* Cards & Buttons */
-    .card { background: #13131c; border: 1px solid #1e1e2e; border-radius: 4px; }
-    .row-item { background: #13131c; border: 1px solid #1e1e2e; border-radius: 4px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; transition: background .15s; }
-    .row-item:hover { background: #16161f; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; }
+    .row-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; transition: background .15s; }
+    .row-item:hover { background: #f1f5f9; }
     .btn-primary { background: #d4a843; color: #0a0a0f; border: none; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 20px; cursor: pointer; font-weight: 500; transition: background .2s; touch-action: manipulation; }
     .btn-primary:hover { background: #e8c060; }
     .btn-fixed { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
     .btn-fixed:hover { background: rgba(168,85,247,0.28); }
     .btn-variable { background: rgba(6,182,212,0.12); color: #22d3ee; border: 1px solid rgba(6,182,212,0.25); border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
     .btn-variable:hover { background: rgba(6,182,212,0.22); }
-    .btn-ghost { background: none; border: 1px solid #2a2a35; color: #8a8a9a; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
-    .btn-ghost:hover { border-color: #5a5a6a; color: #e8e3d8; }
+    .btn-ghost { background: none; border: 1px solid #cbd5e1; color: #64748b; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .2s; touch-action: manipulation; }
+    .btn-ghost:hover { border-color: #94a3b8; color: #1a1a2e; }
     .btn-danger { background: none; border: 1px solid rgba(239,68,68,0.25); color: #f87171; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .2s; }
     .btn-danger:hover { background: rgba(239,68,68,0.1); }
-    .btn-mn { background: none; border: 1px solid #2a2a35; color: #8a8a9a; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: all .15s; }
-    .btn-mn:hover:not(:disabled) { border-color: #5a5a6a; color: #e8e3d8; } .btn-mn:disabled { opacity: 0.25; cursor: default; }
-    .del-btn { background: none; border: none; color: #3a3a4a; cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
+    .btn-mn { background: none; border: 1px solid #cbd5e1; color: #64748b; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: all .15s; }
+    .btn-mn:hover:not(:disabled) { border-color: #94a3b8; color: #1a1a2e; } .btn-mn:disabled { opacity: 0.25; cursor: default; }
+    .del-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
     .del-btn:hover { color: #ef4444; }
-    .edit-btn { background: none; border: none; color: #3a3a4a; cursor: pointer; font-size: 14px; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
+    .edit-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 4px 8px; flex-shrink: 0; transition: color .15s; }
     .edit-btn:hover { color: #d4a843; }
 
     /* Inputs */
-    .input-field { background: #0d0d16; border: 1px solid #2a2a35; border-radius: 4px; color: #e8e3d8; font-family: 'DM Mono', monospace; font-size: 14px; padding: 12px 14px; width: 100%; outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none; }
-    .input-field:focus { border-color: #d4a843; } .input-field::placeholder { color: #3a3a4a; }
+    .input-field { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; color: #1a1a2e; font-family: 'DM Mono', monospace; font-size: 14px; padding: 12px 14px; width: 100%; outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none; }
+    .input-field:focus { border-color: #d4a843; } .input-field::placeholder { color: #94a3b8; }
     select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5a6a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    select.input-field option { background: #0d0d16; }
+    select.input-field option { background: #ffffff; }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.82); display: flex; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(6px); }
-    .modal-box { background: #13131c; border: 1px solid #2a2a35; border-radius: 12px 12px 0 0; padding: 28px 24px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; padding-bottom: calc(28px + env(safe-area-inset-bottom)); animation: slideUp .22s ease; }
-    .modal-drag { width: 40px; height: 4px; background: #2a2a35; border-radius: 2px; margin: 0 auto 20px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,15,30,0.75); display: flex; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(6px); }
+    .modal-box { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px 12px 0 0; padding: 28px 24px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; padding-bottom: calc(28px + env(safe-area-inset-bottom)); animation: slideUp .22s ease; }
+    .modal-drag { width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 0 auto 20px; }
 
     /* Toggle switch */
     .toggle { position: relative; width: 40px; height: 22px; cursor: pointer; flex-shrink: 0; display: inline-block; }
     .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .toggle-track { position: absolute; inset: 0; background: #1e1e2e; border-radius: 11px; transition: background .2s; }
+    .toggle-track { position: absolute; inset: 0; background: #e2e8f0; border-radius: 11px; transition: background .2s; }
     .toggle input:checked + .toggle-track { background: #a855f7; }
     .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: #4a4a5a; border-radius: 50%; transition: all .2s; pointer-events: none; }
     .toggle input:checked ~ .toggle-thumb { left: 21px; background: #fff; }
 
     /* Misc helpers */
     .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #84cc16; display: inline-block; margin-right: 6px; box-shadow: 0 0 6px #84cc16; }
-    .label-sm { font-family: 'DM Mono', monospace; font-size: 9px; color: #4a4a5a; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .label-sm { font-family: 'DM Mono', monospace; font-size: 9px; color: #94a3b8; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; display: block; }
     .mono { font-family: 'DM Mono', monospace; }
     .serif { font-family: 'Playfair Display', serif; }
     .badge-fixed { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: rgba(168,85,247,0.12); color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
     .badge-variable { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.25); }
     .badge-auto { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: rgba(212,168,67,0.12); color: #d4a843; border: 1px solid rgba(212,168,67,0.25); }
-    .info-box { background: rgba(212,168,67,0.06); border: 1px solid rgba(212,168,67,0.18); border-radius: 4px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; }
-    .progress-track { height: 5px; background: #1e1e2e; border-radius: 3px; overflow: hidden; }
+    .info-box { background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.25); border-radius: 4px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; }
+    .progress-track { height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
-    .divider { height: 1px; background: #1e1e2e; margin: 12px 0; }
-    .empty-state { padding: 28px; text-align: center; border: 1px dashed #2a2a35; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; color: #3a3a4a; }
+    .divider { height: 1px; background: #e2e8f0; margin: 12px 0; }
+    .empty-state { padding: 28px; text-align: center; border: 1px dashed #cbd5e1; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; color: #94a3b8; }
     .auto-row { border-left: 2px solid #a855f7 !important; }
     .paused { opacity: 0.45; }
 
@@ -211,7 +211,7 @@ const MonthNav = ({month, onChange}) => {
   return (
     <div style={{display:'flex',alignItems:'center',gap:8}}>
       <button className="btn-mn" onClick={()=>shift(-1)}>‹</button>
-      <span className="mono" style={{fontSize:11,color:'#e8e3d8',minWidth:130,textAlign:'center'}}>{label()}</span>
+      <span className="mono" style={{fontSize:11,color:'#1a1a2e',minWidth:130,textAlign:'center'}}>{label()}</span>
       <button className="btn-mn" onClick={()=>shift(1)} disabled={isNow}>›</button>
     </div>
   );
@@ -303,7 +303,7 @@ function App() {
       <header className="top-bar">
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <span className="serif" style={{fontSize:20,fontWeight:900,color:'#d4a843'}}>LEDGER</span>
-          <span className="hide-mobile mono" style={{fontSize:8,color:'#2a2a35',letterSpacing:'0.22em',textTransform:'uppercase'}}>Personal Finance</span>
+          <span className="hide-mobile mono" style={{fontSize:8,color:'#e2e8f0',letterSpacing:'0.22em',textTransform:'uppercase'}}>Personal Finance</span>
           <span className="sync-dot" />
         </div>
         <nav className="desktop-nav">
@@ -320,8 +320,8 @@ function App() {
           <div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20,flexWrap:'wrap',gap:12}}>
               <div>
-                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Overview</h1>
-                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>Monthly snapshot</p>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#1a1a2e',marginBottom:4}}>Overview</h1>
+                <p className="mono" style={{fontSize:10,color:'#64748b'}}>Monthly snapshot</p>
               </div>
               <MonthNav month={month} onChange={setMonth} />
             </div>
@@ -337,7 +337,7 @@ function App() {
                 <div key={m.label} className={`card ${m.last?'kpi-last':''}`} style={{padding:'16px 14px'}}>
                   <span className="label-sm">{m.label}</span>
                   <p className="serif" style={{fontSize:20,fontWeight:700,color:m.color,marginBottom:2}}>{m.value}</p>
-                  <p className="mono" style={{fontSize:9,color:'#3a3a4a'}}>{m.sub}</p>
+                  <p className="mono" style={{fontSize:9,color:'#94a3b8'}}>{m.sub}</p>
                 </div>
               ))}
             </div>
@@ -350,19 +350,19 @@ function App() {
                   <div style={{display:'flex',gap:6}}><span className="badge-fixed">fixed</span><span className="badge-auto">auto</span></div>
                 </div>
                 {fixCats.length===0
-                  ? <p className="mono" style={{fontSize:10,color:'#3a3a4a'}}>No active fixed expenses</p>
+                  ? <p className="mono" style={{fontSize:10,color:'#94a3b8'}}>No active fixed expenses</p>
                   : fixCats.map(([cat,amt])=>(
                     <div key={cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
-                        <span className="mono" style={{fontSize:10,color:'#8a8a9a',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
-                        <span className="mono" style={{fontSize:10,color:'#e8e3d8'}}>{fmt(amt)}</span>
+                        <span className="mono" style={{fontSize:10,color:'#64748b',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
+                        <span className="mono" style={{fontSize:10,color:'#1a1a2e'}}>{fmt(amt)}</span>
                       </div>
                       <Bar value={amt} max={totalFix} color={CAT_COLORS[cat]} />
                     </div>
                   ))}
                 <div className="divider" />
                 <div style={{display:'flex',justifyContent:'space-between'}}>
-                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>Monthly total</span>
+                  <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>Monthly total</span>
                   <span className="mono" style={{fontSize:12,color:'#a855f7'}}>{fmt(totalFix)}</span>
                 </div>
               </div>
@@ -374,19 +374,19 @@ function App() {
                   <span className="badge-variable">variable</span>
                 </div>
                 {varCats.length===0
-                  ? <p className="mono" style={{fontSize:10,color:'#3a3a4a'}}>No variable expenses</p>
+                  ? <p className="mono" style={{fontSize:10,color:'#94a3b8'}}>No variable expenses</p>
                   : varCats.map(([cat,amt])=>(
                     <div key={cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
-                        <span className="mono" style={{fontSize:10,color:'#8a8a9a',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
-                        <span className="mono" style={{fontSize:10,color:'#e8e3d8'}}>{fmt(amt)}</span>
+                        <span className="mono" style={{fontSize:10,color:'#64748b',display:'flex',alignItems:'center',gap:6}}><Dot cat={cat}/>{cat}</span>
+                        <span className="mono" style={{fontSize:10,color:'#1a1a2e'}}>{fmt(amt)}</span>
                       </div>
                       <Bar value={amt} max={totalVar} color={CAT_COLORS[cat]} />
                     </div>
                   ))}
                 <div className="divider" />
                 <div style={{display:'flex',justifyContent:'space-between'}}>
-                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>Period total</span>
+                  <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>Period total</span>
                   <span className="mono" style={{fontSize:12,color:'#06b6d4'}}>{fmt(totalVar)}</span>
                 </div>
               </div>
@@ -396,7 +396,7 @@ function App() {
                 <span className="label-sm" style={{alignSelf:'flex-start',marginBottom:14}}>Savings Goal</span>
                 <div style={{position:'relative',width:110,height:110,marginBottom:14}}>
                   <svg width="110" height="110" style={{transform:'rotate(-90deg)'}}>
-                    <circle cx="55" cy="55" r="44" fill="none" stroke="#1e1e2e" strokeWidth="8"/>
+                    <circle cx="55" cy="55" r="44" fill="none" stroke="#e2e8f0" strokeWidth="8"/>
                     <circle cx="55" cy="55" r="44" fill="none" stroke="#d4a843" strokeWidth="8"
                       strokeDasharray={`${2*Math.PI*44}`}
                       strokeDashoffset={`${2*Math.PI*44*(1-savePct/100)}`}
@@ -404,12 +404,12 @@ function App() {
                   </svg>
                   <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
                     <span className="serif" style={{fontSize:22,fontWeight:700,color:'#d4a843',lineHeight:1}}>{savePct.toFixed(0)}%</span>
-                    <span className="mono" style={{fontSize:7,color:'#4a4a5a',marginTop:2}}>OF GOAL</span>
+                    <span className="mono" style={{fontSize:7,color:'#64748b',marginTop:2}}>OF GOAL</span>
                   </div>
                 </div>
-                {[['Saved',fmt(saved),'#84cc16'],['Goal',fmt(goal),'#e8e3d8'],['Left',fmt(Math.max(goal-saved,0)),'#d4a843']].map(([l,v,c])=>(
+                {[['Saved',fmt(saved),'#84cc16'],['Goal',fmt(goal),'#1a1a2e'],['Left',fmt(Math.max(goal-saved,0)),'#d4a843']].map(([l,v,c])=>(
                   <div key={l} style={{width:'100%',display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                    <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{l}</span>
+                    <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>{l}</span>
                     <span className="mono" style={{fontSize:10,color:c}}>{v}</span>
                   </div>
                 ))}
@@ -423,8 +423,8 @@ function App() {
           <div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,gap:12,flexWrap:'wrap'}}>
               <div>
-                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Expenses</h1>
-                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>Manage fixed schedules · log variable purchases</p>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#1a1a2e',marginBottom:4}}>Expenses</h1>
+                <p className="mono" style={{fontSize:10,color:'#64748b'}}>Manage fixed schedules · log variable purchases</p>
               </div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
                 <button className="btn-fixed"    onClick={()=>{setFF(blankF);setModal('addFixed')}}>+ Fixed</button>
@@ -434,7 +434,7 @@ function App() {
 
             <div className="info-box" style={{marginBottom:20}}>
               <span style={{fontSize:15,flexShrink:0}}>✦</span>
-              <p className="mono" style={{fontSize:10,color:'#a08030',lineHeight:'1.7'}}>
+              <p className="mono" style={{fontSize:10,color:'#92700a',lineHeight:'1.7'}}>
                 Fixed expenses auto-post every month on their billing day — set up once, appears automatically. Use the month picker below to review any past month.
               </p>
             </div>
@@ -445,7 +445,7 @@ function App() {
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                   <span className="badge-fixed">fixed</span>
                   <span className="badge-auto">auto</span>
-                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{fmt(activeMo)}/mo</span>
+                  <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>{fmt(activeMo)}/mo</span>
                 </div>
                 {fixed.length===0 && <div className="empty-state">Tap + Fixed to add a recurring bill</div>}
                 <div style={{display:'flex',flexDirection:'column',gap:2}}>
@@ -454,10 +454,10 @@ function App() {
                       <Dot cat={f.category}/>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:2}}>
-                          <p className="serif" style={{fontSize:14,color:f.active?'#e8e3d8':'#6a6a7a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</p>
+                          <p className="serif" style={{fontSize:14,color:f.active?'#1a1a2e':'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{f.name}</p>
                           {f.active && <span className="badge-auto">auto</span>}
                         </div>
-                        <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>Day {f.billingDay} · {f.category}</p>
+                        <p className="mono" style={{fontSize:9,color:'#64748b'}}>Day {f.billingDay} · {f.category}</p>
                       </div>
                       <span className="mono" style={{fontSize:13,color:'#a855f7',flexShrink:0}}>{fmt(f.amount)}/mo</span>
                       <label className="toggle" title="Pause/Resume">
@@ -469,14 +469,14 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <p className="mono" style={{fontSize:9,color:'#3a3a4a',marginTop:8}}>Toggle to pause · ✎ to edit · auto-posts each month</p>
+                <p className="mono" style={{fontSize:9,color:'#94a3b8',marginTop:8}}>Toggle to pause · ✎ to edit · auto-posts each month</p>
               </div>
 
               {/* Variable log */}
               <div>
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                   <span className="badge-variable">variable</span>
-                  <span className="mono" style={{fontSize:10,color:'#5a5a6a'}}>{variable.length} total · {fmt(allVar)}</span>
+                  <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>{variable.length} total · {fmt(allVar)}</span>
                 </div>
                 {variable.length===0 && <div className="empty-state">Tap + Variable to log a purchase</div>}
                 <div style={{display:'flex',flexDirection:'column',gap:2}}>
@@ -484,8 +484,8 @@ function App() {
                     <div key={e.id} className="row-item fi" style={{animationDelay:`${i*.04}s`}}>
                       <Dot cat={e.category}/>
                       <div style={{flex:1,minWidth:0}}>
-                        <p className="serif" style={{fontSize:14,color:'#e8e3d8',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{e.name}</p>
-                        <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>{e.category} · {fmtD(e.date)}</p>
+                        <p className="serif" style={{fontSize:14,color:'#1a1a2e',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{e.name}</p>
+                        <p className="mono" style={{fontSize:9,color:'#64748b'}}>{e.category} · {fmtD(e.date)}</p>
                       </div>
                       <span className="mono" style={{fontSize:13,color:'#06b6d4',flexShrink:0}}>−{fmt(e.amount)}</span>
                       <button className="del-btn" onClick={()=>delVar(e.id)}>×</button>
@@ -499,20 +499,20 @@ function App() {
             {auto.length>0 && (
               <div style={{marginTop:28}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
-                  <p className="mono" style={{fontSize:10,color:'#5a5a6a',letterSpacing:'0.12em',textTransform:'uppercase'}}>
+                  <p className="mono" style={{fontSize:10,color:'#94a3b8',letterSpacing:'0.12em',textTransform:'uppercase'}}>
                     Auto-posted Fixed — {(()=>{const [y,m]=month.split('-').map(Number);return new Date(y,m-1,1).toLocaleString('en-US',{month:'long',year:'numeric'})})()}
                   </p>
                   <MonthNav month={month} onChange={setMonth}/>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:2}}>
                   {autoMonth.length===0
-                    ? <p className="mono" style={{fontSize:10,color:'#3a3a4a',padding:16}}>No fixed expenses active this month</p>
+                    ? <p className="mono" style={{fontSize:10,color:'#94a3b8',padding:16}}>No fixed expenses active this month</p>
                     : autoMonth.map((e,i)=>(
                       <div key={e.id} className="row-item auto-row fi" style={{animationDelay:`${i*.03}s`}}>
                         <Dot cat={e.category}/>
                         <div style={{flex:1,minWidth:0}}>
-                          <p className="serif" style={{fontSize:13,color:'#e8e3d8',marginBottom:2}}>{e.name}</p>
-                          <p className="mono" style={{fontSize:9,color:'#4a4a5a'}}>{e.category} · {fmtD(e.date)}</p>
+                          <p className="serif" style={{fontSize:13,color:'#1a1a2e',marginBottom:2}}>{e.name}</p>
+                          <p className="mono" style={{fontSize:9,color:'#64748b'}}>{e.category} · {fmtD(e.date)}</p>
                         </div>
                         <span className="badge-auto">auto</span>
                         <span className="mono" style={{fontSize:13,color:'#a855f7',marginLeft:8}}>−{fmt(e.amount)}</span>
@@ -529,8 +529,8 @@ function App() {
           <div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24,gap:12}}>
               <div>
-                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Paystubs</h1>
-                <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>{paystubs.length} records · {fmt(allInc)} net total</p>
+                <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#1a1a2e',marginBottom:4}}>Paystubs</h1>
+                <p className="mono" style={{fontSize:10,color:'#64748b'}}>{paystubs.length} records · {fmt(allInc)} net total</p>
               </div>
               <button className="btn-primary" onClick={()=>{setPF(blankP);setModal('addPay')}}>+ Add</button>
             </div>
@@ -540,8 +540,8 @@ function App() {
                 <div key={p.id} className="card fi" style={{padding:20,animationDelay:`${i*.06}s`}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
                     <div>
-                      <p className="serif" style={{fontSize:17,color:'#e8e3d8',marginBottom:3}}>{p.employer}</p>
-                      <p className="mono" style={{fontSize:10,color:'#4a4a5a'}}>{fmtD(p.date)}</p>
+                      <p className="serif" style={{fontSize:17,color:'#1a1a2e',marginBottom:3}}>{p.employer}</p>
+                      <p className="mono" style={{fontSize:10,color:'#64748b'}}>{fmtD(p.date)}</p>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:12}}>
                       <div style={{textAlign:'right'}}>
@@ -552,8 +552,8 @@ function App() {
                     </div>
                   </div>
                   <div className="pay-detail">
-                    {[['Gross Pay',p.gross,'#e8e3d8'],['Tax Withheld',p.tax,'#ef4444'],['Deductions',p.deductions,'#f59e0b']].map(([lbl,val,clr])=>(
-                      <div key={lbl} style={{background:'#0d0d16',padding:'10px 14px',borderRadius:2}}>
+                    {[['Gross Pay',p.gross,'#1a1a2e'],['Tax Withheld',p.tax,'#ef4444'],['Deductions',p.deductions,'#f59e0b']].map(([lbl,val,clr])=>(
+                      <div key={lbl} style={{background:'#f8fafc',padding:'10px 14px',borderRadius:2}}>
                         <span className="label-sm">{lbl}</span>
                         <p className="mono" style={{fontSize:13,color:clr}}>{fmt(val)}</p>
                       </div>
@@ -569,14 +569,14 @@ function App() {
         {tab==='savings' && (
           <div>
             <div style={{marginBottom:24}}>
-              <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#e8e3d8',marginBottom:4}}>Savings</h1>
-              <p className="mono" style={{fontSize:10,color:'#4a4a5a',letterSpacing:'0.14em'}}>TRACK YOUR GOAL</p>
+              <h1 className="serif" style={{fontSize:28,fontWeight:900,color:'#1a1a2e',marginBottom:4}}>Savings</h1>
+              <p className="mono" style={{fontSize:10,color:'#64748b',letterSpacing:'0.14em'}}>TRACK YOUR GOAL</p>
             </div>
             <div className="savings-grid">
               <div className="card" style={{padding:36,display:'flex',flexDirection:'column',alignItems:'center'}}>
                 <div style={{position:'relative',width:170,height:170,marginBottom:24}}>
                   <svg width="170" height="170" style={{transform:'rotate(-90deg)'}}>
-                    <circle cx="85" cy="85" r="68" fill="none" stroke="#1e1e2e" strokeWidth="11"/>
+                    <circle cx="85" cy="85" r="68" fill="none" stroke="#e2e8f0" strokeWidth="11"/>
                     <circle cx="85" cy="85" r="68" fill="none" stroke="#d4a843" strokeWidth="11"
                       strokeDasharray={`${2*Math.PI*68}`}
                       strokeDashoffset={`${2*Math.PI*68*(1-savePct/100)}`}
@@ -584,11 +584,11 @@ function App() {
                   </svg>
                   <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
                     <span className="serif" style={{fontSize:36,fontWeight:900,color:'#d4a843',lineHeight:1}}>{savePct.toFixed(0)}%</span>
-                    <span className="mono" style={{fontSize:8,color:'#4a4a5a',marginTop:4}}>OF GOAL</span>
+                    <span className="mono" style={{fontSize:8,color:'#64748b',marginTop:4}}>OF GOAL</span>
                   </div>
                 </div>
                 <div style={{display:'flex',gap:40}}>
-                  {[['Saved',fmt(saved),'#84cc16'],['Remaining',fmt(Math.max(goal-saved,0)),'#e8e3d8']].map(([l,v,c])=>(
+                  {[['Saved',fmt(saved),'#84cc16'],['Remaining',fmt(Math.max(goal-saved,0)),'#1a1a2e']].map(([l,v,c])=>(
                     <div key={l} style={{textAlign:'center'}}>
                       <span className="label-sm">{l}</span>
                       <p className="serif" style={{fontSize:22,color:c,fontWeight:700}}>{v}</p>
@@ -612,19 +612,19 @@ function App() {
                   <span className="label-sm">All-Time Cash Flow</span>
                   {[['Total Income',fmt(allInc),'#84cc16'],['Total Fixed',`−${fmt(allFix)}`,'#a855f7'],['Total Variable',`−${fmt(allVar)}`,'#06b6d4']].map(([l,v,c])=>(
                     <div key={l} style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-                      <span className="mono" style={{fontSize:10,color:'#6a6a7a'}}>{l}</span>
+                      <span className="mono" style={{fontSize:10,color:'#94a3b8'}}>{l}</span>
                       <span className="mono" style={{fontSize:10,color:c}}>{v}</span>
                     </div>
                   ))}
                   <div className="divider"/>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
-                    <span className="mono" style={{fontSize:10,color:'#8a8a9a'}}>Net</span>
+                    <span className="mono" style={{fontSize:10,color:'#64748b'}}>Net</span>
                     <span className="mono" style={{fontSize:13,color:(allInc-allFix-allVar)>=0?'#d4a843':'#ef4444',fontWeight:500}}>{fmt(allInc-allFix-allVar)}</span>
                   </div>
                 </div>
                 <div className="card" style={{padding:20}}>
                   <span className="label-sm">Reset Data</span>
-                  <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:12,lineHeight:'1.6'}}>Clears everything from this browser. Cannot be undone.</p>
+                  <p className="mono" style={{fontSize:9,color:'#64748b',marginBottom:12,lineHeight:'1.6'}}>Clears everything from this browser. Cannot be undone.</p>
                   <button className="btn-danger" style={{width:'100%'}} onClick={()=>{if(window.confirm('Delete ALL data? This cannot be undone.')){['ledger_paystubs','ledger_fixed','ledger_variable','ledger_goal','ledger_savings'].forEach(k=>localStorage.removeItem(k));window.location.reload()}}}>Clear All Data</button>
                 </div>
               </div>
@@ -656,10 +656,10 @@ function App() {
           <div className="modal-box" onClick={e=>e.stopPropagation()}>
             <div className="modal-drag"/>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Add Fixed Expense</h2>
+              <h2 className="serif" style={{fontSize:20,color:'#1a1a2e'}}>Add Fixed Expense</h2>
               <span className="badge-fixed">fixed</span>
             </div>
-            <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:18}}>Will auto-post every month from today</p>
+            <p className="mono" style={{fontSize:9,color:'#64748b',marginBottom:18}}>Will auto-post every month from today</p>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               <input className="input-field" placeholder="Name (e.g. Rent, Car Insurance)" value={ff.name} onChange={e=>setFF(f=>({...f,name:e.target.value}))}/>
               <select className="input-field" value={ff.category} onChange={e=>setFF(f=>({...f,category:e.target.value}))}>
@@ -672,7 +672,7 @@ function App() {
               </div>
               <div className="info-box">
                 <span style={{fontSize:14}}>✦</span>
-                <p className="mono" style={{fontSize:9,color:'#a08030',lineHeight:'1.7'}}>This will automatically appear in every month's expense view — no re-entry needed.</p>
+                <p className="mono" style={{fontSize:9,color:'#92700a',lineHeight:'1.7'}}>This will automatically appear in every month's expense view — no re-entry needed.</p>
               </div>
             </div>
             <div style={{display:'flex',gap:10,marginTop:20}}>
@@ -689,7 +689,7 @@ function App() {
           <div className="modal-box" onClick={e=>e.stopPropagation()}>
             <div className="modal-drag"/>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
-              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Edit Fixed Expense</h2>
+              <h2 className="serif" style={{fontSize:20,color:'#1a1a2e'}}>Edit Fixed Expense</h2>
               <span className="badge-fixed">fixed</span>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
@@ -714,10 +714,10 @@ function App() {
           <div className="modal-box" onClick={e=>e.stopPropagation()}>
             <div className="modal-drag"/>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-              <h2 className="serif" style={{fontSize:20,color:'#e8e3d8'}}>Log Variable Expense</h2>
+              <h2 className="serif" style={{fontSize:20,color:'#1a1a2e'}}>Log Variable Expense</h2>
               <span className="badge-variable">variable</span>
             </div>
-            <p className="mono" style={{fontSize:9,color:'#4a4a5a',marginBottom:18}}>ONE-TIME — groceries, fuel, dining, shopping</p>
+            <p className="mono" style={{fontSize:9,color:'#64748b',marginBottom:18}}>ONE-TIME — groceries, fuel, dining, shopping</p>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               <input className="input-field" placeholder="Description (e.g. Groceries)" value={vf.name} onChange={e=>setVF(f=>({...f,name:e.target.value}))}/>
               <select className="input-field" value={vf.category} onChange={e=>setVF(f=>({...f,category:e.target.value}))}>
@@ -739,7 +739,7 @@ function App() {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-box" onClick={e=>e.stopPropagation()}>
             <div className="modal-drag"/>
-            <h2 className="serif" style={{fontSize:20,color:'#e8e3d8',marginBottom:20}}>Add Paystub</h2>
+            <h2 className="serif" style={{fontSize:20,color:'#1a1a2e',marginBottom:20}}>Add Paystub</h2>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               <input className="input-field" placeholder="Employer name" value={pf.employer} onChange={e=>setPF(f=>({...f,employer:e.target.value}))}/>
               <input className="input-field" type="date" value={pf.date} onChange={e=>setPF(f=>({...f,date:e.target.value}))}/>
@@ -747,7 +747,7 @@ function App() {
               <input className="input-field" type="number" inputMode="decimal" placeholder="Tax withheld ($)" value={pf.tax} onChange={e=>setPF(f=>({...f,tax:e.target.value}))}/>
               <input className="input-field" type="number" inputMode="decimal" placeholder="Other deductions ($)" value={pf.deductions} onChange={e=>setPF(f=>({...f,deductions:e.target.value}))}/>
               {pf.gross && (
-                <div style={{background:'#0d0d16',padding:14,border:'1px solid #1e1e2e',borderRadius:4}}>
+                <div style={{background:'#f8fafc',padding:14,border:'1px solid #1e1e2e',borderRadius:4}}>
                   <span className="label-sm">Net Pay Preview</span>
                   <p className="serif" style={{fontSize:22,color:'#84cc16'}}>{fmt(parseFloat(pf.gross||0)-parseFloat(pf.tax||0)-parseFloat(pf.deductions||0))}</p>
                 </div>
