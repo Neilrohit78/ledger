@@ -216,7 +216,7 @@ const FIXED_CATS=['Rent / Mortgage','Car Insurance','Health Insurance','Loan Pay
 const VAR_CATS=['Groceries','Fuel','Dining Out','Entertainment','Clothing','Personal Care','Medical','Home Supplies','Travel','Other Variable'];
 const CAT_COLORS={'Rent / Mortgage':'#F97316','Car Insurance':'#FB923C','Health Insurance':'#EC4899','Loan Payment':'#A855F7','Subscription':'#8B5CF6','Internet / Phone':'#6366F1','Other Fixed':'#94A3B8','Groceries':'#22C55E','Fuel':'#0EA5E9','Dining Out':'#F59E0B','Entertainment':'#10B981','Clothing':'#14B8A6','Personal Care':'#F472B6','Medical':'#EF4444','Home Supplies':'#06B6D4','Travel':'#84CC16','Other Variable':'#94A3B8'};
 const CAT_ICONS={'Rent / Mortgage':'🏠','Car Insurance':'🚗','Health Insurance':'🏥','Loan Payment':'🏦','Subscription':'📺','Internet / Phone':'📡','Other Fixed':'📌','Groceries':'🛒','Fuel':'⛽','Dining Out':'🍽️','Entertainment':'🎬','Clothing':'👕','Personal Care':'💄','Medical':'💊','Home Supplies':'🧹','Travel':'✈️','Other Variable':'💳'};
-const NAV=[{id:'home',icon:'🏠',label:'Dashboard'},{id:'expenses',icon:'💳',label:'Expenses'},{id:'paystubs',icon:'💰',label:'Income'},{id:'savings',icon:'🎯',label:'Savings'}];
+const NAV=[{id:'home',icon:'🏠',label:'Dashboard'},{id:'expenses',icon:'💳',label:'Expenses'},{id:'paystubs',icon:'💰',label:'Income'},{id:'cards',icon:'🪪',label:'Cards'},{id:'savings',icon:'🎯',label:'Savings'}];
 
 /* ── Helpers ── */
 const fmt=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
@@ -265,6 +265,7 @@ async function loadAllData(){
     fixed:    norm(data.fixed,    ['amount','billingDay']),
     variable: norm(data.variable, ['amount']),
     paystubs: norm(data.paystubs, ['net']),
+    cards:    norm(data.cards,    ['limit','balance']),
     goal:     parseFloat(data.settings?.goal    ?? 10000),
     saved:    parseFloat(data.settings?.saved   ?? 0),
     balance:  parseFloat(data.settings?.balance ?? 0),
@@ -372,6 +373,7 @@ function App(){
   const [goal,setGoal]=useLS('ledger_goal',10000);
   const [saved,setSaved]=useLS('ledger_savings',0);
   const [balance,setBalance]=useLS('ledger_balance',0);
+  const [cards,setCards]=useLS('ledger_cards',[]);
   const [modal,setModal]=useState(null);
   const [editTgt,setEditTgt]=useState(null);
   const [toast,setToast]=useState(null);
@@ -393,6 +395,7 @@ function App(){
         setGoal(cloud.goal);
         setSaved(cloud.saved);
         setBalance(cloud.balance);
+        setCards(cloud.cards);
         setSyncStatus('synced');
       }else{
         setSyncStatus('error');
@@ -417,14 +420,17 @@ function App(){
   useEffect(()=>{ cloudSave('variable','saveVariable',variable); },[variable,hydrated]);
   useEffect(()=>{ cloudSave('paystubs','savePaystubs',paystubs); },[paystubs,hydrated]);
   useEffect(()=>{ cloudSave('settings','saveSettings',{goal,saved,balance}); },[goal,saved,balance,hydrated]);
+  useEffect(()=>{ cloudSave('cards','saveCards',cards); },[cards,hydrated]);
 
 
   const blankF={name:'',category:'Rent / Mortgage',amount:'',billingDay:1,active:true};
   const blankV={name:'',category:'Groceries',amount:'',date:tod()};
   const blankP={employer:'',date:tod(),netPay:''};
+  const blankC={name:'',limit:'',balance:'',dueDate:''};
   const [ff,setFF]=useState(blankF);
   const [vf,setVF]=useState(blankV);
   const [pf,setPF]=useState(blankP);
+  const [cf,setCF]=useState(blankC);
 
   const auto=useMemo(()=>buildAutoHistory(fixed),[fixed]);
   const autoMonth=useMemo(()=>auto.filter(e=>e.month===month),[auto,month]);
@@ -478,6 +484,12 @@ function App(){
   const delVar=id=>{setVar(p=>p.filter(e=>e.id!==id));toast$('Removed','warn')};
   const addPay=()=>{if(!pf.employer||!pf.netPay)return;setPay(p=>[{employer:pf.employer,date:pf.date,net:parseFloat(pf.netPay),id:Date.now()},...p]);setPF(blankP);setModal(null);toast$('Paystub added')};
   const delPay=id=>{setPay(p=>p.filter(x=>x.id!==id));toast$('Removed','warn')};
+
+  const addCard=()=>{if(!cf.name||!cf.limit)return;setCards(p=>[{...cf,id:Date.now(),limit:parseFloat(cf.limit),balance:parseFloat(cf.balance||0)},...p]);setCF(blankC);setModal(null);toast$('Card added')};
+  const saveCard=()=>{setCards(p=>p.map(c=>c.id===editTgt.id?{...editTgt,limit:parseFloat(editTgt.limit),balance:parseFloat(editTgt.balance||0)}:c));closeModal();toast$('Card updated')};
+  const delCard=id=>{setCards(p=>p.filter(c=>c.id!==id));toast$('Removed','warn')};
+  const totalCardBalance=useMemo(()=>cards.reduce((s,c)=>s+c.balance,0),[cards]);
+  const totalCardLimit=useMemo(()=>cards.reduce((s,c)=>s+c.limit,0),[cards]);
 
   const recentTxns=useMemo(()=>[
     ...autoMonth.slice(0,4).map(e=>({...e,type:'fixed'})),
@@ -708,6 +720,10 @@ function App(){
                         <div className="qa-icon" style={{background:'#FEF3C7'}}>🎯</div>
                         <span className="qa-label">View Savings</span>
                       </button>
+                      <button className="qa-btn" onClick={()=>setTab('cards')}>
+                        <div className="qa-icon" style={{background:'#F3E8FF'}}>🪪</div>
+                        <span className="qa-label">Credit Cards</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -855,6 +871,75 @@ function App(){
             </div>
           )}
 
+
+          {/* ══════════ CREDIT CARDS ══════════ */}
+          {tab==='cards'&&(
+            <div>
+              <div className="section-hdr">
+                <div>
+                  <div className="section-title" style={{fontSize:20}}>Credit Cards</div>
+                  <div style={{fontSize:12,color:'#A09585',marginTop:2}}>{cards.length} card{cards.length!==1?'s':''} · {fmt(totalCardBalance)} of {fmt(totalCardLimit)} used</div>
+                </div>
+                <button className="btn-primary" onClick={()=>{setCF(blankC);setModal('addCard')}}>+ Add Card</button>
+              </div>
+
+              <div className="info-banner">
+                <span>✦</span>
+                <span>Update each card's balance at the end of its billing period — a quick monthly check-in keeps your overall picture accurate without tracking every swipe.</span>
+              </div>
+
+              {cards.length===0&&<div className="empty-state" style={{padding:64}}><div className="empty-icon">🪪</div>No cards yet. Tap + Add Card.</div>}
+
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
+                {cards.map((c,i)=>{
+                  const pct=c.limit?Math.min((c.balance/c.limit)*100,100):0;
+                  const color=pct>=90?'#DC2626':pct>=70?'#F59E0B':'#16A34A';
+                  return(
+                    <div key={c.id} className="card fi" style={{padding:20,animationDelay:`${i*.05}s`}}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+                        <div style={{display:'flex',alignItems:'center',gap:10}}>
+                          <div style={{width:40,height:40,borderRadius:10,background:'#F3E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>🪪</div>
+                          <div>
+                            <p style={{fontSize:14,fontWeight:700,color:'#1C1917'}}>{c.name}</p>
+                            {c.dueDate&&<p style={{fontSize:11,color:'#A09585'}}>Due day {c.dueDate}</p>}
+                          </div>
+                        </div>
+                        <div style={{display:'flex',gap:2}}>
+                          <button className="edit-btn" onClick={()=>{setEditTgt({...c});setModal('editCard')}}>✎</button>
+                          <button className="del-btn" onClick={()=>delCard(c.id)}>×</button>
+                        </div>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:6}}>
+                        <span style={{fontSize:22,fontWeight:800,color:'#1C1917'}}>{fmt(c.balance)}</span>
+                        <span style={{fontSize:12,color:'#A09585'}}>of {fmt(c.limit)}</span>
+                      </div>
+                      <div className="goal-bar-track">
+                        <div className="goal-bar-fill" style={{width:`${pct}%`,background:color}}/>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'space-between',marginTop:6}}>
+                        <span style={{fontSize:11,color:'#A09585'}}>{pct.toFixed(0)}% utilized</span>
+                        <span style={{fontSize:11,fontWeight:600,color}}>{fmt(Math.max(c.limit-c.balance,0))} available</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {cards.length>0&&(
+                <div className="card" style={{padding:20,marginTop:20}}>
+                  <div className="section-title" style={{marginBottom:12}}>Overall Utilization</div>
+                  <div className="goal-bar-track">
+                    <div className="goal-bar-fill" style={{width:`${totalCardLimit?Math.min((totalCardBalance/totalCardLimit)*100,100):0}%`,background:'linear-gradient(90deg,#A855F7,#7C3AED)'}}/>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',marginTop:8}}>
+                    <span style={{fontSize:12,color:'#A09585'}}>{fmt(totalCardBalance)} total balance</span>
+                    <span style={{fontSize:12,fontWeight:600,color:'#7C3AED'}}>{fmt(Math.max(totalCardLimit-totalCardBalance,0))} available</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* ══════════ SAVINGS ══════════ */}
           {tab==='savings'&&(
             <div>
@@ -919,7 +1004,7 @@ function App(){
                   </div>
                   <div className="card" style={{padding:20}}>
                     <div style={{fontSize:12,fontWeight:600,color:'#A09585',marginBottom:10}}>Danger Zone</div>
-                    <button className="btn-danger" style={{width:'100%'}} onClick={async()=>{if(window.confirm('Delete ALL data? This cannot be undone.')){['ledger_fixed','ledger_variable','ledger_paystubs','ledger_goal','ledger_savings','ledger_balance'].forEach(k=>localStorage.removeItem(k));await apiCall('clearAll');window.location.reload()}}}>Clear All Data</button>
+                    <button className="btn-danger" style={{width:'100%'}} onClick={async()=>{if(window.confirm('Delete ALL data? This cannot be undone.')){['ledger_fixed','ledger_variable','ledger_paystubs','ledger_goal','ledger_savings','ledger_balance','ledger_cards'].forEach(k=>localStorage.removeItem(k));await apiCall('clearAll');window.location.reload()}}}>Clear All Data</button>
                   </div>
                 </div>
               </div>
@@ -1032,6 +1117,49 @@ function App(){
             </div>
             <div style={{display:'flex',gap:10,marginTop:22}}>
               <button className="btn-variable" style={{flex:1}} onClick={addVar}>Log Expense</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* Add Card */}
+      {modal==='addCard'&&(
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <div className="modal-title">Add Credit Card</div>
+            <div className="modal-sub">Track limit and current balance — update at end of billing cycle</div>
+            <div className="field-group">
+              <div><span className="input-label">Card Name</span><input className="input-field" placeholder="e.g. Chase Sapphire" value={cf.name} onChange={e=>setCF(f=>({...f,name:e.target.value}))}/></div>
+              <div><span className="input-label">Credit Limit ($)</span><input className="input-field" type="number" inputMode="decimal" placeholder="0.00" value={cf.limit} onChange={e=>setCF(f=>({...f,limit:e.target.value}))}/></div>
+              <div><span className="input-label">Current Balance ($)</span><input className="input-field" type="number" inputMode="decimal" placeholder="0.00" value={cf.balance} onChange={e=>setCF(f=>({...f,balance:e.target.value}))}/></div>
+              <div><span className="input-label">Billing Due Day (optional)</span><input className="input-field" type="number" inputMode="numeric" min="1" max="31" placeholder="e.g. 15" value={cf.dueDate} onChange={e=>setCF(f=>({...f,dueDate:e.target.value}))}/></div>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:22}}>
+              <button className="btn-primary" style={{flex:1}} onClick={addCard}>Add Card</button>
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Card */}
+      {modal==='editCard'&&editTgt&&(
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={e=>e.stopPropagation()}>
+            <div className="modal-drag"/>
+            <div className="modal-title">Update Card</div>
+            <div className="modal-sub">Update balance at end of billing period</div>
+            <div className="field-group">
+              <div><span className="input-label">Card Name</span><input className="input-field" value={editTgt.name} onChange={e=>setEditTgt(t=>({...t,name:e.target.value}))}/></div>
+              <div><span className="input-label">Credit Limit ($)</span><input className="input-field" type="number" inputMode="decimal" value={editTgt.limit} onChange={e=>setEditTgt(t=>({...t,limit:e.target.value}))}/></div>
+              <div><span className="input-label">Current Balance ($)</span><input className="input-field" type="number" inputMode="decimal" value={editTgt.balance} onChange={e=>setEditTgt(t=>({...t,balance:e.target.value}))} style={{fontSize:18,fontWeight:700,color:'#7C3AED'}}/></div>
+              <div><span className="input-label">Billing Due Day</span><input className="input-field" type="number" inputMode="numeric" min="1" max="31" value={editTgt.dueDate} onChange={e=>setEditTgt(t=>({...t,dueDate:e.target.value}))}/></div>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:22}}>
+              <button className="btn-primary" style={{flex:1}} onClick={saveCard}>Save Changes</button>
               <button className="btn-ghost" onClick={closeModal}>Cancel</button>
             </div>
           </div>
